@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24-Hour Todo Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header card animate-fade-in">
+            <div class="header-content">
+                <div>
+                    <h1 class="gradient-text">🚀 Productivity Command Center</h1>
+                    <p class="subtitle">Track every hour like a digital strategist ⚡</p>
+                </div>
+                <div class="header-actions">
+                    <button id="shareBtn" class="btn btn-outline" onclick="shareSchedule()" title="Share your schedule">
+                        <i data-lucide="share-2"></i>
+                        <span>Share</span>
+                    </button>
+                    <button id="resetBtn" class="btn btn-outline" onclick="resetDay()" title="Reset all tasks to Pending">
+                        <i data-lucide="rotate-ccw"></i>
+                        <span>Reset Day</span>
+                    </button>
+                    <button id="alarmBtn" class="btn btn-outline" onclick="toggleAlarm()">
+                        <i data-lucide="bell-off"></i>
+                        <span id="alarmText">Enable Alarm</span>
+                    </button>
+                    <div class="header-stats hide-mobile">
+                        <p class="subtitle text-right">Stay consistent</p>
+                        <p class="stat-highlight">🔥 Focus Mode</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Timetable Section -->
+            <main class="timetable-section card animate-fade-in delay-1">
+                <div class="section-header">
+                    <h2><i data-lucide="clock-3" class="icon-cyan"></i> 24-Hour Tracker</h2>
+                </div>
+
+                <!-- Add Task Form -->
+                <div class="add-task-card card-inner">
+                    <h3>➕ Customize Your Day</h3>
+                    <form id="taskForm" class="task-form">
+                        <input type="text" id="taskTime" placeholder="Time (e.g. 11:00-12:00)" required>
+                        <input type="text" id="taskName" placeholder="Task Name" required>
+                        <input type="text" id="taskSubject" placeholder="Subject" required>
+                        <select id="taskPriority">
+                            <option value="High">High Priority</option>
+                            <option value="Medium" selected>Medium Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Add Task</button>
+                    </form>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <h3 id="totalTasksCount">0</h3>
+                        <p>Total Tasks</p>
+                    </div>
+                    <div class="stat-card success">
+                        <h3 id="completedTasksCount">0</h3>
+                        <p>Completed</p>
+                    </div>
+                    <div class="stat-card warning">
+                        <h3 id="pendingTasksCount">0</h3>
+                        <p>Pending</p>
+                    </div>
+                    <div class="stat-card info">
+                        <h3 id="completionPercent">0%</h3>
+                        <p>Completion</p>
+                    </div>
+                </div>
+
+                <!-- Tasks List -->
+                <div class="tasks-container" id="tasksList">
+                    <!-- Tasks will be injected here via JavaScript -->
+                </div>
+            </main>
+
+            <!-- Sidebar / Analytics Section -->
+            <aside class="analytics-section card animate-fade-in delay-2">
+                <div class="section-header">
+                    <h2><i data-lucide="bar-chart-3" class="icon-cyan"></i> Daily Analytics</h2>
+                </div>
+
+                <div class="focus-meter card-inner relative">
+                    <div class="glow-bg"></div>
+                    <h3 class="z-index-1">🎯 Focus Meter</h3>
+                    <p class="subtitle z-index-1">Your completion rate for the day.</p>
+                    
+                    <div class="progress-bar-container z-index-1">
+                        <div class="progress-bar" id="mainProgressBar" style="width: 0%">
+                            <div class="progress-glow"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-footer z-index-1">
+                        <p class="text-cyan font-bold"><span id="mainProgressText">0</span>% Achieved</p>
+                        <span id="fireBadge" class="badge badge-glow hidden">On Fire! 🔥</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container card-inner mt-4">
+                     <canvas id="progressChart"></canvas>
+                </div>
+
+                <div class="status-breakdown mt-4">
+                    <h3>Status Breakdown</h3>
+                    
+                    <div class="breakdown-item">
+                        <div class="breakdown-header">
+                            <span>Completed</span>
+                            <span id="completedPercentText">0%</span>
+                        </div>
+                        <div class="mini-progress-bg">
+                            <div class="mini-progress bg-green" id="completedBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="breakdown-item">
+                        <div class="breakdown-header">
+                            <span>In Progress</span>
+                            <span id="inProgressPercentText">0%</span>
+                        </div>
+                        <div class="mini-progress-bg">
+                            <div class="mini-progress bg-yellow" id="inProgressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <div class="breakdown-header">
+                            <span>Pending</span>
+                            <span id="pendingPercentText">0%</span>
+                        </div>
+                        <div class="mini-progress-bg">
+                            <div class="mini-progress bg-red" id="pendingBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="target-card mt-auto">
+                    <h3><i data-lucide="target" class="icon-cyan"></i> Daily Goal</h3>
+                    <p>Complete at least 80% tasks today and keep the momentum rolling like a neon train through midnight rain.</p>
+                </div>
+            </aside>
+        </div>
+    </div>
+    
+    <!-- Audio for Alarm (Soft Tune) -->
+    <audio id="alarmSound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-notification-951.mp3" preload="auto"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
